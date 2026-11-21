@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Kurzy devizového trhu ČNB – vývoj, statistiky a převodník. Aktualizuje se automaticky každý pracovní den." />
+  <title>Kurzy ČNB</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="wrap top">
+    <h1>Kurzy ČNB</h1>
+    <p id="meta" class="muted">Načítám data…</p>
+  </header>
+
+  <main class="wrap">
+    <section id="cards" class="cards" aria-label="Hlavní měny"></section>
+
+    <section class="panel" aria-labelledby="chart-title">
+      <div class="panel-head">
+        <h2 id="chart-title">Vývoj kurzu</h2>
+        <div class="controls">
+          <label class="visually-hidden" for="currency">Měna</label>
+          <select id="currency"></select>
+          <div class="range" role="group" aria-label="Období">
+            <button type="button" data-days="30">30 dní</button>
+            <button type="button" data-days="90" aria-pressed="true">90 dní</button>
+            <button type="button" data-days="365">1 rok</button>
+          </div>
+        </div>
+      </div>
+      <div class="chart-box">
+        <svg id="chart" role="img" aria-labelledby="chart-title"></svg>
+        <div id="tooltip" class="tooltip" hidden></div>
+      </div>
+    </section>
+
+    <section class="panel converter" aria-labelledby="conv-title">
+      <h2 id="conv-title">Převodník</h2>
+      <div class="conv-row">
+        <label>Částka <input id="conv-amount" type="number" min="0" step="any" value="100" /></label>
+        <label>Měna <select id="conv-currency"></select></label>
+        <output id="conv-result" for="conv-amount conv-currency"></output>
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="table-title">
+      <h2 id="table-title">Všechny měny</h2>
+      <div class="table-scroll">
+        <table id="table">
+          <thead>
+            <tr>
+              <th data-key="code">Měna</th>
+              <th data-key="latest" class="num">Kurz (Kč)</th>
+              <th data-key="change_1d_pct" class="num">Den</th>
+              <th data-key="change_30d_pct" class="num">30 dní</th>
+              <th data-key="change_ytd_pct" class="num">Od začátku roku</th>
+              <th data-key="volatility_30d_pct" class="num">Volatilita</th>
+              <th class="num">Rozpětí za rok</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="muted small">Kurz za 1 jednotku měny. Volatilita = roční směrodatná odchylka denních změn za posledních 30 obchodních dní.</p>
+    </section>
+  </main>
+
+  <footer class="wrap muted small foot">
+    Zdroj: Česká národní banka · data se stahují automaticky každý pracovní den přes GitHub Actions ·
+    <a href="https://github.com/neubauerlukas207-cell/cnb-rates-pipeline">zdrojový kód</a>
+  </footer>
+  <script src="app.js" type="module"></script>
+</body>
+</html>
