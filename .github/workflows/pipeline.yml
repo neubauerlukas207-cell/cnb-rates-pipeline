@@ -1,0 +1,60 @@
+name: Pipeline kurzů ČNB
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    # každý pracovní den ve 14:45 UTC – ČNB vyhlašuje kurzy po 14:30 SEČ
+    - cron: "45 14 * * 1-5"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Lint (ruff)
+        run: ruff check .
+      - name: Jednotkové a integrační testy
+        run: pytest -m "not e2e"
+      - name: Testy dashboardu v prohlížeči (Playwright)
+        run: |
+          python -m playwright install --with-deps chromium
+          pytest -m e2e
+
+  publish:
+    needs: test
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install .
+      - name: Stažení dat z ČNB, kontrola kvality a sestavení webu
+        run: cnb-rates --db data/rates.db run --out public
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: public
+      - id: deployment
+        uses: actions/deploy-pages@v5
